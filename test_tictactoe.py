@@ -1,5 +1,5 @@
 import unittest
-from tictactoe import *
+from tictactoe_minimax import *
 
 
 class test_tictactoe(unittest.TestCase):
