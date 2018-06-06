@@ -5,7 +5,6 @@
     <title>Title</title>
 
     <link rel="stylesheet" href="/static/style.css">
-    <script src="/static/site.js" type="application/javascript"></script>
 </head>
 <body>
     <svg height="600" width="600">
@@ -32,19 +31,14 @@
 
         <g id="board">
             <use href="#grid" x="0" y="0" />
-
-            <use href="#o-piece" x="0" y="0" onclick="click_square(1)"/>
-            <use href="#x-piece" x="100" y="0" onclick="click_square(2)"/>
-            <use href="#o-piece" x="200" y="0" onclick="click_square(3)"/>
-
-            <use href="#x-piece" x="0" y="100" onclick="click_square(4)"/>
-            <use href="#o-piece" x="100" y="100" onclick="click_square(5)"/>
-            <use href="#x-piece" x="200" y="100" onclick="click_square(6)"/>
-
-            <use href="#o-piece" x="0" y="200" onclick="click_square(7)"/>
-            <use href="#x-piece" x="100" y="200" onclick="click_square(8)"/>
-            <use href="#o-piece" x="200" y="200" onclick="click_square(9)"/>
         </g>
     </svg>
+
+    <script>
+        var board_pieces = {{ board_pieces |safe }};
+    </script>
+
+    <script src="/static/site.js" type="application/javascript"></script>
+
 </body>
 </html>
