@@ -1,38 +1,43 @@
-var board_positions = {
-    0: [0, 0],
-    1: [100, 0],
-    2: [200, 0],
-    3: [0, 100],
-    4: [100, 100],
-    5: [200, 100],
-    6: [0, 200],
-    7: [100, 200],
-    8: [200, 200],
-};
 
 function click_square(num) {
     alert(num)
 }
 
-function show_piece(piece, position) {
+function show_piece(position) {
+    var board_positions = {
+        0: [0, 0],
+        1: [100, 0],
+        2: [200, 0],
+        3: [0, 100],
+        4: [100, 100],
+        5: [200, 100],
+        6: [0, 200],
+        7: [100, 200],
+        8: [200, 200],
+    };
+    var coords = board_positions[position];
+    var piece = board[i];
+
     var  svgns = "http://www.w3.org/2000/svg";
     var  xlinkns = "http://www.w3.org/1999/xlink";
 
     var  g = document.getElementById("board");
     var  use = document.createElementNS(svgns, "use");
 
-    if (piece == 1) {
+    if (piece == "x") {
         use.setAttributeNS(xlinkns, "href", "#x-piece");
-    } else if (piece == -1) {
+    } else if (piece == "o") {
         use.setAttributeNS(xlinkns, "href", "#o-piece");
+    } else {
+        use.setAttributeNS(xlinkns, "href", "#blank");
     }
 
-    use.setAttribute("x", position[0]);
-    use.setAttribute("y", position[1]);
+    use.setAttribute("x", coords[0]);
+    use.setAttribute("y", coords[1]);
+    use.setAttribute("onclick", "click_square(" + position + ")");
     g.appendChild(use);
 }
 
-
-Object.keys(board_pieces).forEach(function(key) {
-    show_piece(board_pieces[key], board_positions[key]);
-});
+for (i=0; i<9; i++) {
+    show_piece(i);
+}
