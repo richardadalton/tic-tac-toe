@@ -40,7 +40,10 @@
 
     <script>
         var board = '{{ board }}';
-        var moves = JSON.parse({{ moves|safe }});
+    </script>
+
+    <script>
+        var moves = {{ moves |safe }};
     </script>
 
     <script src="/static/site.js" type="application/javascript"></script>

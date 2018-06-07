@@ -1,6 +1,6 @@
 
-function click_square(num) {
-    alert(num)
+function click_square(move) {
+    window.location.href = "/?move=" + move;
 }
 
 function show_piece(position) {
@@ -31,10 +31,12 @@ function show_piece(position) {
     } else {
         use.setAttributeNS(xlinkns, "href", "#blank");
     }
-
     use.setAttribute("x", coords[0]);
     use.setAttribute("y", coords[1]);
-    use.setAttribute("onclick", "click_square(" + position + ")");
+
+    if (position in moves) {
+        use.setAttribute("onclick", "click_square('" + moves[position] + "')");
+    }
     g.appendChild(use);
 }
 
