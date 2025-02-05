@@ -9,7 +9,7 @@ class TicTacToeMiniMax(TicTacToeAlgorithm):
         move_scores = {}
         for move in moves:
             board_after_move = make_move(board, move, player)
-            score_after_move = self.__minimax(board_after_move, other_player(player))
+            score_after_move = self.minimax(board_after_move, other_player(player))
             move_scores[move] = score_after_move
 
         # The Key of the highest scoring move, is the move itself.
@@ -19,7 +19,7 @@ class TicTacToeMiniMax(TicTacToeAlgorithm):
             return min(move_scores, key=move_scores.get)
 
 
-    def __minimax(self, board, player):
+    def minimax(self, board, player):
         moves = available_moves(board)
 
         if moves == []:
@@ -36,7 +36,7 @@ class TicTacToeMiniMax(TicTacToeAlgorithm):
                 continue
 
             # Not a definitive result, keep searching
-            score_after_move = self.__minimax(board_after_move, other_player(player))
+            score_after_move = self.minimax(board_after_move, other_player(player))
             move_scores[move] = score_after_move
 
         if player == X:
