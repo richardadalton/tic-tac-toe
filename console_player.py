@@ -1,4 +1,5 @@
 from tictactoe_random import TicTacToeRandom
+from tictactoe_minimax import TicTacToeMiniMax
 from utils import *
 
 # Allows tictactoe algorithms to be run using a simple console interface.
@@ -32,7 +33,7 @@ def main():
         if player == X:
             move = int(input("Enter Move: "))
         else:
-            ai = TicTacToeRandom()
+            ai = TicTacToeMiniMax()
             move = ai.get_move(board, O)
 
         board = make_move(board, move, player)

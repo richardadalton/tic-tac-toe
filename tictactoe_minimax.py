@@ -10,10 +10,13 @@ class TicTacToeMiniMax(TicTacToeAlgorithm):
         for move in moves:
             board_after_move = make_move(board, move, player)
             score_after_move = self.__minimax(board_after_move, other_player(player))
-            move_scores[move] = score_after_move * player
+            move_scores[move] = score_after_move
 
         # The Key of the highest scoring move, is the move itself.
-        return max(move_scores, key=move_scores.get)
+        if player == X:
+            return max(move_scores, key=move_scores.get)
+        else:
+            return min(move_scores, key=move_scores.get)
 
 
     def __minimax(self, board, player):
@@ -25,8 +28,18 @@ class TicTacToeMiniMax(TicTacToeAlgorithm):
         move_scores = {}
         for move in moves:
             board_after_move = make_move(board, move, player)
-            score_after_move = minimax(board_after_move, other_player(player))
-            move_scores[move] = score_after_move * player
 
-        this_score = max(move_scores.values())
-        return this_score * player
+            this_move_score = score(board_after_move)
+
+            if this_move_score is not None:
+                move_scores[move] = this_move_score
+                continue
+
+            # Not a definitive result, keep searching
+            score_after_move = self.__minimax(board_after_move, other_player(player))
+            move_scores[move] = score_after_move
+
+        if player == X:
+            return max(move_scores.values())
+        else:
+            return min(move_scores.values())

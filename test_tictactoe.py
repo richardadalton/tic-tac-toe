@@ -1,10 +1,20 @@
 import unittest
 from tictactoe_minimax import *
+from constants import *
 
 
 class test_tictactoe(unittest.TestCase):
 
-    def test_finds_win_for_X(self):
+    def test_misc(self):
+        board = [
+                X, O, N,
+                N, X, N,
+                N, N, O
+            ]
+        self.assertEqual(None, score(board))
+
+
+    def test_recognises_win_for_X(self):
         board = [
                 X, O, N,
                 N, X, O,
@@ -13,7 +23,7 @@ class test_tictactoe(unittest.TestCase):
         self.assertEqual(X, score(board))
 
 
-    def test_finds_win_for_O(self):
+    def test_recognises_win_for_O(self):
         board = [
                 X, O, O,
                 N, X, O,
@@ -21,18 +31,25 @@ class test_tictactoe(unittest.TestCase):
             ]
         self.assertEqual(O, score(board))
 
+    def test_recignises_draw(self):
+        board = [
+            X, X, O,
+            O, O, X,
+            X, X, O
+            ]
+        self.assertEqual(N, score(board))
 
-    def test_finds_no_winner(self):
+    def test_recignises_no_yet(self):
         board = [
                 N, N, N,
                 N, X, O,
                 N, O, O
             ]
-        self.assertEqual(N, score(board))
+        self.assertEqual(None, score(board))
 
 
     def test_make_a_move(self):
-        board = empty_board
+        board = EMPTY_BOARD
         board = make_move(board, 4, X)
         board = make_move(board, 8, O)
 
@@ -59,31 +76,14 @@ class test_tictactoe(unittest.TestCase):
         self.assertEqual(X, other_player(O))
 
 
-    def test_a_full_game_played_perfectly_is_a_draw(self):
-        board = empty_board
-        result = minimax(board, X)
-        print(result)
-        self.assertEqual(N, result)
-
-
-    def test_can_see_final_result(self):
-        board = [
-                X, N, N,
-                N, O, N,
-                O, N, X
-            ]
-        result = minimax(board, X)
-        self.assertEqual(result, X)
-
-
-
     def test_can_see_winning_move(self):
         board = [
                 X, O, N,
                 X, O, N,
                 N, N, N
             ]
-        move = get_move(board, X)
+        ai = TicTacToeMiniMax()
+        move = ai.get_move(board, X)
         self.assertEqual(6, move)
 
 
@@ -93,9 +93,9 @@ class test_tictactoe(unittest.TestCase):
                 X, O, N,
                 O, N, N
             ]
-        move = get_move(board, X)
+        ai = TicTacToeMiniMax()
+        move = ai.get_move(board, X)
         self.assertEqual(2, move)
-
 
     def test_forced_move_for_O(self):
         board = [
@@ -103,5 +103,17 @@ class test_tictactoe(unittest.TestCase):
                 N, O, N,
                 X, X, N
             ]
-        move = get_move(board, O)
+        ai = TicTacToeMiniMax()
+        move = ai.get_move(board, O)
         self.assertEqual(8, move)
+
+
+    def test_find_a_win(self):
+        board = [
+                X, O, X,
+                N, O, N,
+                N, N, X
+            ]
+        ai = TicTacToeMiniMax()
+        move = ai.get_move(board, O)
+        self.assertEqual(7, move)

@@ -1,3 +1,5 @@
+from http.cookiejar import Cookie
+
 from constants import *
 
 def score(board):
@@ -7,6 +9,11 @@ def score(board):
             return X
         elif s == -3:
             return O
+
+    for p in board:
+        if p == N:
+            return None
+
     return N
 
 def make_move(board, move, player):
@@ -16,12 +23,10 @@ def make_move(board, move, player):
 
 def available_moves(board):
     this_score = score(board)
-
-    if this_score != N:
+    if this_score != None:
         return []
     else:
         return [i for i in range(9) if board[i] == N]
-
 
 def other_player(player):
     return -player
