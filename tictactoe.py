@@ -1,17 +1,31 @@
-from flask import Flask, request, render_template
+from os import abort
+
+from flask import Flask, request, abort, render_template, jsonify
 from tictactoe_minimax import TicTacToeMiniMax
-from tictactoe_random import TicTacToeRandom
-from utils import score
 from constants import *
+from utils import other_player
 
 app = Flask(__name__)
 
-def get_moves(board, player):
-    moves = {}
-    for i in range(9):
-        if board[i] == 'b':
-            moves[i] = board[:i] + player + board[i+1:]
-    return moves
+BASE_URL = "http://127.0.0.1:5000"
+
+# Map between the web based string representation of the player and board, and the algorithm representation
+def str_to_player(str):
+    map_str_to_player = {
+        'b': N,
+        'x': X,
+        'o': O,
+    }
+    return map_str_to_player[str]
+
+
+def player_to_str(player):
+    map_player_to_str = {
+        N: 'b',
+        X: 'x',
+        O: 'o',
+    }
+    return player_to_str(player)
 
 
 def str_to_board(str):
@@ -32,11 +46,77 @@ def board_to_str(board):
     return "".join([map_board_to_str[b] for b in board])
 
 
+def api_get_moves(board, player):
+    moves = {}
+    for i in range(9):
+        if board[i] == 'b':
+            board_str = board[:i] + player + board[i+1:]
+            moves[i] = f"{BASE_URL}/api/move?player={player}&board={board_str}"
+    return moves
+
+
+@app.route("/api/new")
+def api_new_game():
+    player = 'x'
+    board = 'bbbbbbbbb'
+    response = {
+        'player': player,
+        'board': board,
+        'moves': api_get_moves(board, player),
+    }
+    return jsonify(response)
+
+
+@app.route("/api/move")
+def api_move():
+    if 'board' in request.args:
+        board_str = request.args['board']
+    else:
+        abort(400, "board not provided")
+
+    if 'player' in request.args:
+        player_str = request.args['player']
+    else:
+        abort(400, "player not provided")
+
+    player = str_to_player(player_str)
+    oplayer = other_player(player)
+    board = get_move(board_str, oplayer)
+    str = board_to_str(board)
+    moves = api_get_moves(str, 'x')
+    response = {
+        'player': 'x',
+        'board': str,
+        'moves': moves,
+    }
+    return jsonify(response)
+
+
+
+
+
+
+
+def get_moves(board, player):
+    moves = {}
+    for i in range(9):
+        if board[i] == 'b':
+            moves[i] = board[:i] + player + board[i+1:]
+    return moves
+
+
+
+
+
+
+
 
 @app.route("/new")
 def get_new_game():
+    player = 'x'
     board = "bbbbbbbbb"
-    return render_template("index.html", board=board, moves=get_moves(board, 'x'))
+    moves = get_moves(board, player)
+    return render_template("index.html", board=board, moves=moves, player=player)
 
 
 @app.route("/")
@@ -46,23 +126,18 @@ def get_index():
     else:
         board = 'bbbbbbbbb'
 
-    board = get_move(board, 'o')
+    board = get_move(board, O)
     str = board_to_str(board)
     moves = get_moves(str, 'x')
-    return render_template("index.html", board=str, moves=moves)
-
-
-
+    return render_template("index.html", board=str, moves=moves, player='x')
 
 
 def get_move(board, player):
     board2 = str_to_board(board)
     ai = TicTacToeMiniMax()
-    move = ai.get_move(board2, O)
+    move = ai.get_move(board2, player)
     board2[move] = O
     return board2
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
