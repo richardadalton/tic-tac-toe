@@ -4,6 +4,10 @@ from tictactoe_algorithm import TicTacToeAlgorithm
 class TicTacToeMiniMax(TicTacToeAlgorithm):
 
     def get_move(self, board, player):
+
+        if score(board) is not None:
+            return None
+
         moves = available_moves(board)
 
         move_scores = {}
