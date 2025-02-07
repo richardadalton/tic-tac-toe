@@ -1,16 +1,13 @@
-from os import abort
-
 from flask import Flask, request, abort, redirect, jsonify
 from flask_cors import CORS, cross_origin
-from tictactoe_minimax import TicTacToeMiniMax
 from constants import *
+from tictactoe_minimax import TicTacToeMiniMax
 from utils import other_player, score
 
 app = Flask(__name__)
 cors = CORS(app)
 
 BASE_URL = "http://127.0.0.1:5000"
-
 
 def parse_request(request):
     if 'board' in request.args:
@@ -63,7 +60,7 @@ def board_to_str(board):
     return "".join([map_board_to_str[b] for b in board])
 
 
-# Use AI to get move for a given position
+# Use AI to get a move for a given position
 def get_move(board, player):
     ai = TicTacToeMiniMax()
     move = ai.get_move(board, player)
@@ -80,7 +77,12 @@ def api_get_move_urls(board, player):
     return moves
 
 
-def serialize_response(player, board, result, moves):
+def serialize_response(player, board, result):
+    if result is None:
+        moves = api_get_move_urls(board, player)
+    else:
+        moves = []
+
     response = {
         'player': player,
         'board': board,
@@ -99,28 +101,27 @@ def api_new_game():
     player = 'x'
     board = 'bbbbbbbbb'
     result = None
-    moves = api_get_move_urls(board, player)
-    return serialize_response(player, board, result, moves)
+    return serialize_response(player, board, result)
 
 
 @app.route("/api/move")
 @cross_origin()
 def api_move():
     player, board = parse_request(request)
-
-    otherplayer = other_player(player)
-
-    # Get the other players move (AI)
-    board = get_move(board, otherplayer)
-
     player_str = player_to_str(player)
-    board_str = board_to_str(board)
-    moves = api_get_move_urls(board_str, player_str)
+    otherplayer = other_player(player)
 
     result = score(board)
     if result is not None:
-        moves = []
-    return serialize_response(player_str, board_str, result, moves)
+        # Player move has ended the game
+        board_str = board_to_str(board)
+        return serialize_response(None, board_str, result)
+    else:
+        # Get the other players move (AI)
+        board = get_move(board, otherplayer)
+        board_str = board_to_str(board)
+        result = score(board)
+        return serialize_response(player_str, board_str, result)
 
 
 @app.route("/")

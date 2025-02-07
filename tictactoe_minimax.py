@@ -1,5 +1,6 @@
 from utils import *
 from tictactoe_algorithm import TicTacToeAlgorithm
+import random
 
 class TicTacToeMiniMax(TicTacToeAlgorithm):
 
@@ -18,9 +19,13 @@ class TicTacToeMiniMax(TicTacToeAlgorithm):
 
         # The Key of the highest scoring move, is the move itself.
         if player == X:
-            return max(move_scores, key=move_scores.get)
+            max_value = max(move_scores.values())
+            filtered_scores = {k: v for k, v in move_scores.items() if v == max_value}
+            return random.choice(list(filtered_scores.keys()))
         else:
-            return min(move_scores, key=move_scores.get)
+            min_value = min(move_scores.values())
+            filtered_scores = {k: v for k, v in move_scores.items() if v == min_value}
+            return random.choice(list(filtered_scores.keys()))
 
 
     def minimax(self, board, player):
