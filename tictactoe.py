@@ -111,10 +111,6 @@ def api_move():
     }
     return jsonify(response)
 
-
-
-
-
 def get_moves(board, player):
     moves = {}
     for i in range(9):
@@ -123,25 +119,9 @@ def get_moves(board, player):
     return moves
 
 
-@app.route("/new")
-def get_new_game():
-    player = 'x'
-    board = "bbbbbbbbb"
-    moves = get_moves(board, player)
-    return render_template("index.html", board=board, moves=moves, player=player)
-
-
 @app.route("/")
 def get_index():
-    if 'move' in request.args:
-        board = request.args['move']
-    else:
-        board = 'bbbbbbbbb'
-
-    board = get_move(board, O)
-    str = board_to_str(board)
-    moves = get_moves(str, 'x')
-    return render_template("index.html", board=str, moves=moves, player='x')
+    return render_template("index.html")
 
 
 def parse_request(request):
