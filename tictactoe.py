@@ -1,11 +1,13 @@
 from os import abort
 
 from flask import Flask, request, abort, render_template, jsonify
+from flask_cors import CORS, cross_origin
 from tictactoe_minimax import TicTacToeMiniMax
 from constants import *
 from utils import other_player, score
 
 app = Flask(__name__)
+cors = CORS(app)
 
 BASE_URL = "http://127.0.0.1:5000"
 
@@ -55,8 +57,6 @@ def get_move(board, player):
     return board2
 
 
-
-
 def api_get_moves(board, player):
     moves = {}
     for i in range(9):
@@ -67,6 +67,7 @@ def api_get_moves(board, player):
 
 
 @app.route("/api/new")
+@cross_origin()
 def api_new_game():
     player = 'x'
     board = 'bbbbbbbbb'
@@ -85,6 +86,7 @@ def api_new_game():
 
 
 @app.route("/api/move")
+@cross_origin()
 def api_move():
     player_str, board_str = parse_request(request)
 

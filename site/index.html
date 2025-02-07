@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <title>Title</title>
 
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
+
     <svg height="600" width="600">
         <defs>
             <g id="o-piece">
@@ -34,23 +35,12 @@
         </defs>
 
         <g id="board">
-            <use href="#grid" x="0" y="0" />
+            <use class="gridlines" href="#grid" x="0" y="0" />
         </g>
     </svg>
 
-    <script>
-        var board = '{{ board }}';
-    </script>
-
-    <script>
-        var player = '{{ player }}';
-    </script>
-
-    <script>
-        var moves = {{ moves |safe }};
-    </script>
-
-    <script src="/static/site.js" type="application/javascript"></script>
+    <script src="static/site.js" type="application/javascript"></script>
+    <p id="new_game_link">New Game</p>
 
 </body>
 </html>
