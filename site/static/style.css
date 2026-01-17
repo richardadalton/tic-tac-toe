@@ -1,3 +1,121 @@
-#board {
-    transform: scale(2);
+:root{
+  --bg:#f5f7fb;
+  --card:#ffffff;
+  --muted:#6b7280;
+  --accent:#0ea5a4;
+  --highlight:#ffeb3b;
+  --shadow: 0 8px 24px rgba(10,20,40,0.08);
+  --radius:12px;
+  --gap:16px;
+  --maxwidth:420px;
+  --board-size:460px;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+html,body{
+  height:100%;
+  margin:0;
+  background:var(--bg);
+  color:#0f172a;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+.app{
+  min-height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:32px 16px;
+  box-sizing:border-box;
+}
+
+/* App card */
+.board-wrap{
+  width:100%;
+  max-width:var(--maxwidth);
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:18px;
+  box-shadow:var(--shadow);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:var(--gap);
+}
+
+/* Header with left-aligned New Game */
+.app-header{
+  width:100%;
+  max-width:var(--maxwidth);
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:12px;
+  justify-content:flex-start; /* keep New Game on the left */
+}
+
+.title{
+  margin:0;
+  font-size:1.1rem;
+  font-weight:600;
+  color:#08132a;
+}
+
+/* New game button: visible, accessible, not centered */
+.btn{
+  appearance:none;
+  border:1px solid rgba(2,6,23,0.07);
+  background:linear-gradient(180deg,#fff,#f7fafc);
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:0.95rem;
+  color:var(--accent);
+  transition:transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+.btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 18px rgba(10,20,40,0.08);
+  background-color:#fffcea;
+}
+.btn:active{ transform:translateY(0); }
+.btn:focus{
+  outline:none;
+  box-shadow:0 0 0 4px rgba(14,165,164,0.12);
+}
+
+/* Responsive board svg */
+.board-svg{
+  width:100%;
+  max-width:var(--board-size);
+  height:auto;
+  display:block;
+  pointer-events:none; /* container default; pieces enable pointer-events */
+  touch-action:manipulation;
+}
+
+/* Keep gridlines visible and below pieces */
+.gridlines{ pointer-events:none; opacity:0.98; }
+
+/* piece elements created by JS have class "piece" */
+.piece{
+  pointer-events:auto; /* interactive */
+  cursor:pointer;
+  transition:transform 120ms ease, opacity 120ms ease;
+}
+.piece:active{ transform:translateY(0) scale(1); }
+
+/* footer */
+.app-footer{
+  margin-top:12px;
+  color:var(--muted);
+  font-size:0.85rem;
+}
+
+/* small screens: reduce paddings */
+@media (max-width:420px){
+  :root{ --maxwidth:340px; --board-size:300px; }
+  .app{ padding:20px 12px; }
+  .board-wrap{ padding:12px; }
 }
