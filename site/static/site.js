@@ -19,7 +19,15 @@ function on_receive_game(data) {
     var moves = data['links']['moves']
     var new_game = data['links']['new_game']
 
-    // TODO: This appends extra SVG elements, it doesn't replace
+    // Clear existing SVG pieces so items don't stack and cover the new_game link
+    var g = document.getElementById("board");
+    if (g) {
+        var pieces = g.querySelectorAll('.piece');
+        pieces.forEach(function (p) {
+            g.removeChild(p);
+        });
+    }
+
     for (i=0; i<9; i++) {
         show_piece(board, i, moves)
     }
