@@ -52,7 +52,7 @@ html,body{
   align-items:center;
   gap:12px;
   margin-bottom:12px;
-  justify-content:flex-start; /* keep New Game on the left */
+  justify-content:center;
 }
 
 .title{
@@ -105,6 +105,26 @@ html,body{
   transition:transform 120ms ease, opacity 120ms ease;
 }
 .piece:active{ transform:translateY(0) scale(1); }
+
+result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center; /* keeps pair centered under the board */
+  margin-top: 12px;
+  flex-wrap: wrap; /* prevents overflow on narrow screens */
+}
+
+#result_text {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+#new_game_link {
+  margin: 0;
+}
 
 /* footer */
 .app-footer{

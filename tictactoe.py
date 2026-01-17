@@ -21,12 +21,7 @@ def parse_request(request):
     else:
         abort(400, "player not provided")
 
-    if 'history' in request.args:
-        history_str = request.args['history']
-    else:
-        abort(400, "history not provided")
-
-    return  str_to_player(player_str), str_to_board(board_str), history_str
+    return  str_to_player(player_str), str_to_board(board_str)
 
 
 # Map between the web based string representation of the player and board, and the algorithm representation
@@ -84,30 +79,37 @@ def get_move(board, player):
     return board
 
 
-def api_get_move_urls(board, player, history):
+def api_get_move_urls(board, player):
     moves = {}
     for i in range(9):
         if board[i] == 'b':
             board_str = board[:i] + player + board[i+1:]
-            moves[i] = f"{BASE_URL}/api/move?player={player}&board={board_str}&history={history + board_str}"
+            moves[i] = f"{BASE_URL}/api/move?player={player}&board={board_str}"
     return moves
 
 
-def serialize_response(player, board, history, score):
+def serialize_response(player, board, score):
     if score is None:
-        moves = api_get_move_urls(board, player, history)
+        moves = api_get_move_urls(board, player)
     else:
         moves = []
 
     response = {
-        'player': player,
-        'board': board,
-        'result': score_to_result(score),
-        'links': {
-            'new_game': BASE_URL + '/api/new',
-            'moves': moves,
+        'game': {
+            'player': player,
+            'board': board,
         }
     }
+
+    result = score_to_result(score)
+    if result:
+        response['game']['result'] = result
+
+    response['links'] = {
+        'new_game': BASE_URL + '/api/new',
+        'moves': moves,
+    }
+
     return jsonify(response)
 
 
@@ -116,15 +118,14 @@ def serialize_response(player, board, history, score):
 def api_new_game():
     player = 'x'
     board = 'bbbbbbbbb'
-    history = board
     result = None
-    return serialize_response(player, board, history, result)
+    return serialize_response(player, board, result)
 
 
 @app.route("/api/move")
 @cross_origin()
 def api_move():
-    player, board, history = parse_request(request)
+    player, board = parse_request(request)
     player_str = player_to_str(player)
     otherplayer = other_player(player)
 
@@ -132,13 +133,13 @@ def api_move():
     if result is not None:
         # Player move has ended the game
         board_str = board_to_str(board)
-        return serialize_response(None, board_str, history, result)
+        return serialize_response(None, board_str, result)
     else:
         # Get the other players move (AI)
         board = get_move(board, otherplayer)
         board_str = board_to_str(board)
         result = score(board)
-        return serialize_response(player_str, board_str, history, result)
+        return serialize_response(player_str, board_str, result)
 
 
 @app.route("/")

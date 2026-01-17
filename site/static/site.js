@@ -15,9 +15,15 @@ function get_game(url, on_success) {
 function on_receive_game(data) {
     data = JSON.parse(data);
 
-    var board = data['board']
+    var board = data['game']['board']
     var moves = data['links']['moves']
     var new_game = data['links']['new_game']
+    var result = data['game']['result'] || ''
+
+    var resultEl = document.getElementById("result_text");
+    if (resultEl) {
+        resultEl.textContent = result;
+    }
 
     // Clear existing SVG pieces so items don't stack and cover the new_game link
     var g = document.getElementById("board");

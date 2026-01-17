@@ -2,17 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>ReST tic-tac-toe</title>
 
     <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
   <div class="app">
     <header class="app-header">
-      <button id="new_game_link" class="btn">New Game</button>
       <h1 class="title">Tic Tac Toe</h1>
     </header>
-
     <main class="board-wrap" role="main">
       <!-- responsive svg: use viewBox so it scales; keep defs and board group as before -->
       <svg class="board-svg" viewBox="0 0 300 300" preserveAspectRatio="xMidYMid meet" aria-label="game board">
@@ -46,6 +44,12 @@
         </g>
       </svg>
     </main>
+
+    <result>
+        <button id="new_game_link" class="btn">New Game</button>
+        <p id="result_text"></p>
+    </result>
+
 
     <footer class="app-footer" aria-hidden="true">
         <small>Simple single-file UI, with an attempt at something like a true <a href="https://en.wikipedia.org/wiki/HATEOAS">HATEOAS ReST API</a> as a backend.</small>
