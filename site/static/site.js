@@ -12,50 +12,67 @@ function get_game(url, on_success) {
 }
 
 
+// Holds the pending auto-play timeout so it can be cancelled on New Game
+var auto_play_timer = null;
+
 function on_receive_game(data) {
     data = JSON.parse(data);
 
-    var board = data['game']['board']
-    var moves = data['links']['moves']
-    var new_game = data['links']['new_game']
-    var result = data['game']['result'] || ''
+    var board    = data['game']['board'];
+    var moves    = data['links']['moves'];
+    var ai_move  = data['links']['ai_move'] || null;
+    var result   = data['game']['result'] || '';
 
     var resultEl = document.getElementById("result_text");
     if (resultEl) {
         resultEl.textContent = result;
     }
 
-    // Clear existing SVG pieces so items don't stack and cover the new_game link
+    // Clear existing SVG pieces
     var g = document.getElementById("board");
     if (g) {
         var pieces = g.querySelectorAll('.piece, .win-line');
-        pieces.forEach(function (p) {
-            g.removeChild(p);
-        });
+        pieces.forEach(function (p) { g.removeChild(p); });
     }
 
+    // When it's an AI's turn, don't attach onclick to squares —
+    // the AI will auto-play and we don't want the human to interfere
+    var effective_moves = ai_move ? {} : moves;
     for (i=0; i<9; i++) {
-        show_piece(board, i, moves)
+        show_piece(board, i, effective_moves);
     }
 
-    // Draw a line through the winning cells, or flash all symbols on a draw
+    // Win / draw animations
     var win_line = data['game']['win_line'] || null;
-    var isDraw = (result && result.toLowerCase() === 'draw');
+    var isDraw   = (result && result.toLowerCase() === 'draw');
     if (win_line) {
-        // Highlight winning pieces with a glow
         highlight_winning_pieces(win_line);
-        // Delay the strike-through line so the glow animation plays first
-        setTimeout(function () {
-            draw_win_line(win_line);
-        }, 600);
+        setTimeout(function () { draw_win_line(win_line); }, 600);
     } else if (isDraw) {
-        // Flash all non-blank symbols in a draw
         highlight_all_pieces(board);
     }
 
-    // TODO: This doesn't work yet, could just reload the page, but want to use api/new
-    var  ng = document.getElementById("new_game_link");
-    ng.setAttribute("onclick", "click_square('" + new_game + "')");
+    // Cancel any previously scheduled auto-play before scheduling a new one
+    if (auto_play_timer) {
+        clearTimeout(auto_play_timer);
+        auto_play_timer = null;
+    }
+
+    if (ai_move) {
+        // Show which player is thinking, then follow the pre-computed move link
+        var player = data['game']['player'];
+        if (resultEl) {
+            resultEl.textContent = (player === 'x' ? 'X' : 'O') + ' is thinking…';
+        }
+        auto_play_timer = setTimeout(function () {
+            auto_play_timer = null;
+            get_game(ai_move, on_receive_game);
+        }, 1000);
+    }
+
+    // New game button always reads the current player-select values
+    var ng = document.getElementById("new_game_link");
+    ng.onclick = start_new_game;
 }
 
 
@@ -151,9 +168,19 @@ function draw_win_line(win_line) {
 }
 
 
+function start_new_game() {
+    if (auto_play_timer) {
+        clearTimeout(auto_play_timer);
+        auto_play_timer = null;
+    }
+    var xPlayer = document.getElementById("x_player").value;
+    var oPlayer = document.getElementById("o_player").value;
+    get_game("/api/new?x_player=" + xPlayer + "&o_player=" + oPlayer, on_receive_game);
+}
+
 function click_square(move) {
     get_game(move, on_receive_game);
 }
 
-// On page load, start a new game
-get_game("/api/new", on_receive_game)
+// On page load, start a new game with the default player selections
+start_new_game();

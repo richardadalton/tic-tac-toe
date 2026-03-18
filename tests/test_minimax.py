@@ -1,5 +1,6 @@
 import unittest
 from tictactoe_minimax import *
+from tictactoe_random import TicTacToeRandom
 from constants import *
 
 
@@ -46,7 +47,8 @@ class test_minimax(unittest.TestCase):
             ]
         ai = TicTacToeMiniMax()
         move = ai.get_move(board, O)
-        self.assertEqual(5, move)
+        # O wins by completing the middle column [1, 4, 7]
+        self.assertEqual(7, move)
 
 
     def test_perfect_game_is_a_draw(self):
@@ -69,3 +71,52 @@ class test_minimax(unittest.TestCase):
         ai = TicTacToeMiniMax()
         result = ai.minimax(board, X)
         self.assertEqual(X, result)
+
+
+    def test_get_move_returns_an_empty_cell(self):
+        board = [X, O, N, N, X, N, N, N, N]
+        ai = TicTacToeMiniMax()
+        move = ai.get_move(board, O)
+        self.assertIn(move, range(9))
+        self.assertEqual(N, board[move])
+
+    def test_get_move_returns_none_on_finished_board(self):
+        # Board already won by X (top row)
+        board = [X, X, X, N, O, N, N, N, O]
+        ai = TicTacToeMiniMax()
+        self.assertIsNone(ai.get_move(board, O))
+
+    def _play_game(self, x_ai, o_ai):
+        """Play a complete game, returning the final score."""
+        board = EMPTY_BOARD.copy()
+        current_player = X
+        while True:
+            result = score(board)
+            if result is not None:
+                return result
+            ai = x_ai if current_player == X else o_ai
+            move = ai.get_move(board, current_player)
+            board = make_move(board, move, current_player)
+            current_player = other_player(current_player)
+
+    def test_minimax_vs_minimax_always_draws(self):
+        ai = TicTacToeMiniMax()
+        result = self._play_game(ai, ai)
+        self.assertEqual(N, result)
+
+    def test_minimax_as_x_never_loses_against_random(self):
+        minimax = TicTacToeMiniMax()
+        random_ai = TicTacToeRandom()
+        for _ in range(50):
+            result = self._play_game(minimax, random_ai)
+            # Minimax (X) must win or draw — never lose
+            self.assertNotEqual(O, result)
+
+    def test_minimax_as_o_never_loses_against_random(self):
+        minimax = TicTacToeMiniMax()
+        random_ai = TicTacToeRandom()
+        for _ in range(50):
+            result = self._play_game(random_ai, minimax)
+            # Minimax (O) must win or draw — never lose
+            self.assertNotEqual(X, result)
+

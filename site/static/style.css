@@ -30,6 +30,47 @@ html,body{
   box-sizing:border-box;
 }
 
+/* Player configuration selects */
+.player-config{
+  width:100%;
+  max-width:var(--maxwidth);
+  display:flex;
+  gap:8px;
+  margin-bottom:10px;
+}
+
+.player-config-row{
+  flex:1;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:var(--card);
+  border:1px solid rgba(2,6,23,0.07);
+  border-radius:8px;
+  padding:6px 10px;
+  box-shadow:var(--shadow);
+}
+
+.player-label{
+  font-size:0.95rem;
+  font-weight:700;
+  color:#08132a;
+  min-width:12px;
+}
+
+.player-select{
+  flex:1;
+  border:none;
+  background:transparent;
+  font-size:0.875rem;
+  color:var(--muted);
+  cursor:pointer;
+  outline:none;
+}
+.player-select:focus{
+  color:#0f172a;
+}
+
 /* App card */
 .board-wrap{
   width:100%;

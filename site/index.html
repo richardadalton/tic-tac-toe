@@ -11,6 +11,26 @@
     <header class="app-header">
       <h1 class="title">Tic Tac Toe</h1>
     </header>
+
+    <section class="player-config" aria-label="Player setup">
+      <div class="player-config-row">
+        <label for="x_player" class="player-label">X</label>
+        <select id="x_player" class="player-select">
+          <option value="human" selected>Human</option>
+          <option value="minimax">Minimax AI</option>
+          <option value="random">Random AI</option>
+        </select>
+      </div>
+      <div class="player-config-row">
+        <label for="o_player" class="player-label">O</label>
+        <select id="o_player" class="player-select">
+          <option value="human">Human</option>
+          <option value="minimax" selected>Minimax AI</option>
+          <option value="random">Random AI</option>
+        </select>
+      </div>
+    </section>
+
     <main class="board-wrap" role="main">
       <!-- responsive svg: use viewBox so it scales; keep defs and board group as before -->
       <svg class="board-svg" viewBox="0 0 300 300" preserveAspectRatio="xMidYMid meet" aria-label="game board">
