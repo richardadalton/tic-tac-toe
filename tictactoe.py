@@ -1,12 +1,14 @@
 import os
 from flask import Flask, request, abort, send_from_directory, jsonify
 from flask_cors import CORS, cross_origin
+from werkzeug.middleware.proxy_fix import ProxyFix
 from constants import *
 from tictactoe_minimax import TicTacToeMiniMax
 from tictactoe_random import TicTacToeRandom
 from utils import other_player, score, winning_line
 
 app = Flask(__name__, static_folder='site/static')
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 cors = CORS(app)
 
 ALGORITHMS = {

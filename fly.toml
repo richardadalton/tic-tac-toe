@@ -1,0 +1,21 @@
+# fly.toml — Fly.io deployment configuration
+# Replace YOUR-APP-NAME with the name you chose when running `fly apps create`
+
+app            = 'restactoe'
+primary_region = 'lhr'
+
+[build]
+
+[http_service]
+  internal_port       = 9000
+  force_https         = true
+  auto_stop_machines  = 'stop'   # scale to zero when idle — no idle charges
+  auto_start_machines = true
+  min_machines_running = 0
+  processes           = ['app']
+
+[[vm]]
+  cpu_kind = 'shared'
+  cpus     = 1
+  memory   = '256mb'
+

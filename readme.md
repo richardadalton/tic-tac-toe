@@ -317,6 +317,68 @@ PORT=8080 python tictactoe.py
 
 ---
 
+## Deployment
+
+The project ships with a `Dockerfile` and `fly.toml` for deployment on
+[Fly.io](https://fly.io). The app is stateless and needs no persistent
+volumes, so it fits comfortably within Fly.io's free allowance on a
+`shared-cpu-1x 256 MB` machine with scale-to-zero enabled.
+
+In production the Flask development server is replaced by
+[Gunicorn](https://gunicorn.org), which is included in `requirements.txt`.
+
+### First deploy
+
+```bash
+# 1. Install the Fly CLI if you haven't already
+brew install flyctl          # macOS
+# or: curl -L https://fly.io/install.sh | sh
+
+# 2. Log in
+fly auth login
+
+# 3. Create the app (choose a globally unique name)
+fly apps create YOUR-APP-NAME
+
+# 4. Update fly.toml with that name, then deploy
+fly deploy
+```
+
+Fly.io will build the Docker image remotely, push it, and start the machine.
+Your app will be live at `https://YOUR-APP-NAME.fly.dev`.
+
+### Subsequent deploys
+
+```bash
+fly deploy
+```
+
+### Configuration
+
+| Setting | Value | Notes |
+|---|---|---|
+| Internal port | `9000` | Matches `PORT` default in `tictactoe.py` |
+| `auto_stop_machines` | `stop` | Machine halts when idle — no idle charges |
+| `auto_start_machines` | `true` | Machine wakes automatically on next request |
+| `min_machines_running` | `0` | Scale to zero; cold start takes ~2–3 seconds |
+| Memory | `256 MB` | More than enough for this app |
+
+### Overriding the port
+
+If you change the port, update it in both `fly.toml` (`internal_port`) and
+either `tictactoe.py` or the `CMD` line in the `Dockerfile`:
+
+```bash
+# Dockerfile CMD
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", ...]
+
+# fly.toml
+[http_service]
+  internal_port = 8080
+```
+
+---
+
 ## Testing
 
 Install pytest (included in the virtual environment after `pip install -r requirements.txt` once pytest has been added):
