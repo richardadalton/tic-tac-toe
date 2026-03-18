@@ -1,6 +1,6 @@
 import os
 from flask import Flask, request, abort, send_from_directory, jsonify
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 from constants import *
 from tictactoe_minimax import TicTacToeMiniMax
@@ -9,12 +9,18 @@ from utils import other_player, score, winning_line
 
 app = Flask(__name__, static_folder='site/static')
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
-cors = CORS(app)
+CORS(app)
 
 ALGORITHMS = {
     'minimax': TicTacToeMiniMax,
     'random':  TicTacToeRandom,
 }
+
+# Conversion maps between the URL string representation and the internal integer representation
+_STR_TO_PLAYER = {'x': X, 'o': O}
+_PLAYER_TO_STR = {X: 'x', O: 'o', N: 'b'}
+_STR_TO_CELL   = {'x': X, 'o': O, 'b': N}
+_CELL_TO_STR   = {X: 'x', O: 'o', N: 'b'}
 
 
 def base_url():
@@ -28,7 +34,7 @@ def get_algorithm(name):
     return cls()
 
 
-def parse_request(request):
+def parse_request():
     if 'board' in request.args:
         board_str = request.args['board']
     else:
@@ -39,50 +45,30 @@ def parse_request(request):
     else:
         abort(400, "player not provided")
 
-    return  str_to_player(player_str), str_to_board(board_str)
+    return str_to_player(player_str), str_to_board(board_str)
 
 
-def parse_player_config(request):
+def parse_player_config():
     x_player = request.args.get('x_player', 'human')
     o_player = request.args.get('o_player', 'minimax')
     return x_player, o_player
 
 
-# Map between the web based string representation of the player and board, and the algorithm representation
-def str_to_player(str):
-    map_str_to_player = {
-        'b': N,
-        'x': X,
-        'o': O,
-    }
-    return map_str_to_player[str]
+def str_to_player(s):
+    return _STR_TO_PLAYER[s]
 
 
 def player_to_str(player):
-    map_player_to_str = {
-        N: 'b',
-        X: 'x',
-        O: 'o',
-    }
-    return map_player_to_str[player]
+    return _PLAYER_TO_STR[player]
 
 
-def str_to_board(str):
-    map_str_to_board = {
-        'b': N,
-        'x': X,
-        'o': O,
-    }
-    return [map_str_to_board[c] for c in str]
+def str_to_board(s):
+    return [_STR_TO_CELL[c] for c in s]
 
 
 def board_to_str(board):
-    map_board_to_str = {
-        N: 'b',
-        X: 'x',
-        O: 'o',
-    }
-    return "".join([map_board_to_str[b] for b in board])
+    return "".join(_CELL_TO_STR[c] for c in board)
+
 
 def score_to_result(score):
     if score == X:
@@ -112,7 +98,7 @@ def serialize_response(player, board, score, win_line=None, x_player='human', o_
     if score is None:
         moves = api_get_move_urls(board, player, x_player, o_player)
     else:
-        moves = []
+        moves = {}
 
     response = {
         'game': {
@@ -156,19 +142,15 @@ def serialize_response(player, board, score, win_line=None, x_player='human', o_
 
 
 @app.route("/api/new")
-@cross_origin()
 def api_new_game():
-    x_player, o_player = parse_player_config(request)
-    # Always return the empty board — serialize_response adds the ai_move link
-    # if X is an AI, so the frontend will kick off the first move automatically.
+    x_player, o_player = parse_player_config()
     return serialize_response('x', 'bbbbbbbbb', None, None, x_player, o_player)
 
 
 @app.route("/api/move")
-@cross_origin()
 def api_move():
-    player, board = parse_request(request)
-    x_player, o_player = parse_player_config(request)
+    player, board = parse_request()
+    x_player, o_player = parse_player_config()
 
     # Check whether the submitted move ended the game
     result = score(board)

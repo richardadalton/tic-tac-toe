@@ -1,4 +1,3 @@
-from http.cookiejar import Cookie
 
 from constants import *
 

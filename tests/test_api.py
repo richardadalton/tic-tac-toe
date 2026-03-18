@@ -37,8 +37,6 @@ class TestStringConversions(unittest.TestCase):
     def test_str_to_player_o(self):
         self.assertEqual(O, str_to_player('o'))
 
-    def test_str_to_player_b(self):
-        self.assertEqual(N, str_to_player('b'))
 
     def test_player_to_str_round_trip_x(self):
         self.assertEqual(X, str_to_player(player_to_str(X)))

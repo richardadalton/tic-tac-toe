@@ -4,6 +4,4 @@ import random
 
 class TicTacToeRandom(TicTacToeAlgorithm):
     def get_move(self, board, player):
-        moves = available_moves(board)
-        move = random.choice(moves)
-        return move
+        return random.choice(available_moves(board))
