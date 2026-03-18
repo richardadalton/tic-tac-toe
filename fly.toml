@@ -1,5 +1,4 @@
 # fly.toml — Fly.io deployment configuration
-# Replace YOUR-APP-NAME with the name you chose when running `fly apps create`
 
 app            = 'restactoe'
 primary_region = 'lhr'

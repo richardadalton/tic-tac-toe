@@ -14,7 +14,8 @@ A browser-based Tic-Tac-Toe game built as an exercise in genuine
 - [Frontend](#frontend)
 - [Player Configuration](#player-configuration)
 - [Installation](#installation)
-- [Running](#running)
+- [Running Locally](#running-locally)
+- [Deployment](#deployment)
 - [Testing](#testing)
 
 ---
@@ -295,21 +296,28 @@ pip install -r requirements.txt
 
 ---
 
-## Running
+## Running Locally
+
+### With Python directly
 
 ```bash
 python tictactoe.py
 ```
 
-The server listens on **all network interfaces** (`0.0.0.0`) on **port 9000**,
-so it is reachable from other devices on the local network:
+### With Docker Compose
+
+```bash
+docker compose up --build
+```
+
+Both options serve the app on **port 9000**, reachable at:
 
 ```
 http://localhost:9000
 http://<your-local-ip>:9000
 ```
 
-The port can be overridden with an environment variable:
+The port can be overridden with an environment variable (Python only):
 
 ```bash
 PORT=8080 python tictactoe.py
@@ -319,63 +327,43 @@ PORT=8080 python tictactoe.py
 
 ## Deployment
 
-The project ships with a `Dockerfile` and `fly.toml` for deployment on
-[Fly.io](https://fly.io). The app is stateless and needs no persistent
-volumes, so it fits comfortably within Fly.io's free allowance on a
-`shared-cpu-1x 256 MB` machine with scale-to-zero enabled.
-
-In production the Flask development server is replaced by
+The project supports two deployment targets. Both use the same `Dockerfile`
+and `compose.yml`; in production the Flask dev server is replaced by
 [Gunicorn](https://gunicorn.org), which is included in `requirements.txt`.
 
-### First deploy
+### Fly.io (public)
+
+The app is deployed at **https://restactoe.fly.dev**.
+
+`fly.toml` is committed to the repository and already configured. Deploying
+is a single command:
 
 ```bash
-# 1. Install the Fly CLI if you haven't already
-brew install flyctl          # macOS
-# or: curl -L https://fly.io/install.sh | sh
+fly deploy
+```
 
-# 2. Log in
+Fly.io builds the Docker image remotely and rolls it out. The app runs on a
+`shared-cpu-1x 256 MB` machine in the `lhr` (London) region with
+scale-to-zero enabled, so there are no idle charges.
+
+**First-time setup** (already done — kept here for reference):
+
+```bash
+brew install flyctl       # install the Fly CLI
 fly auth login
-
-# 3. Create the app (choose a globally unique name)
-fly apps create YOUR-APP-NAME
-
-# 4. Update fly.toml with that name, then deploy
+fly apps create restactoe
 fly deploy
 ```
 
-Fly.io will build the Docker image remotely, push it, and start the machine.
-Your app will be live at `https://YOUR-APP-NAME.fly.dev`.
+**Behind a proxy — `ProxyFix`**
 
-### Subsequent deploys
-
-```bash
-fly deploy
-```
-
-### Configuration
-
-| Setting | Value | Notes |
-|---|---|---|
-| Internal port | `9000` | Matches `PORT` default in `tictactoe.py` |
-| `auto_stop_machines` | `stop` | Machine halts when idle — no idle charges |
-| `auto_start_machines` | `true` | Machine wakes automatically on next request |
-| `min_machines_running` | `0` | Scale to zero; cold start takes ~2–3 seconds |
-| Memory | `256 MB` | More than enough for this app |
-
-### Overriding the port
-
-If you change the port, update it in both `fly.toml` (`internal_port`) and
-either `tictactoe.py` or the `CMD` line in the `Dockerfile`:
-
-```bash
-# Dockerfile CMD
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", ...]
-
-# fly.toml
-[http_service]
-  internal_port = 8080
-```
+Fly.io terminates TLS at its edge and forwards traffic to the container as
+plain HTTP. Without correction, `request.url_root` would return `http://`
+and all generated move links would be blocked by the browser as mixed
+content. `ProxyFix` in `tictactoe.py` reads the `X-Forwarded-Proto: https`
+header Fly.io injects and rewrites the scheme accordingly. It is harmless in
+environments where that header is absent (plain `python tictactoe.py` or
+`docker compose up` locally).
 
 ---
 
