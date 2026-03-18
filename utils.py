@@ -16,6 +16,13 @@ def score(board):
 
     return N
 
+def winning_line(board):
+    for pattern in WIN_PATTERNS:
+        s = sum([board[i] for i in pattern])
+        if s == 3 or s == -3:
+            return pattern
+    return None
+
 def make_move(board, move, player):
     new_board = board.copy()
     new_board[move] = player

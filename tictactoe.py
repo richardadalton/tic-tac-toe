@@ -1,14 +1,16 @@
-from flask import Flask, request, abort, redirect, jsonify
+from flask import Flask, request, abort, send_from_directory, jsonify
 from flask_cors import CORS, cross_origin
 from constants import *
 from tictactoe_minimax import TicTacToeMiniMax
 from tictactoe_random import TicTacToeRandom
-from utils import other_player, score
+from utils import other_player, score, winning_line
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='site/static')
 cors = CORS(app)
 
-BASE_URL = "http://127.0.0.1:5000"
+
+def base_url():
+    return request.url_root.rstrip('/')
 
 def parse_request(request):
     if 'board' in request.args:
@@ -84,11 +86,11 @@ def api_get_move_urls(board, player):
     for i in range(9):
         if board[i] == 'b':
             board_str = board[:i] + player + board[i+1:]
-            moves[i] = f"{BASE_URL}/api/move?player={player}&board={board_str}"
+            moves[i] = f"{base_url()}/api/move?player={player}&board={board_str}"
     return moves
 
 
-def serialize_response(player, board, score):
+def serialize_response(player, board, score, win_line=None):
     if score is None:
         moves = api_get_move_urls(board, player)
     else:
@@ -105,8 +107,11 @@ def serialize_response(player, board, score):
     if result:
         response['game']['result'] = result
 
+    if win_line:
+        response['game']['win_line'] = win_line
+
     response['links'] = {
-        'new_game': BASE_URL + '/api/new',
+        'new_game': base_url() + '/api/new',
         'moves': moves,
     }
 
@@ -133,19 +138,21 @@ def api_move():
     if result is not None:
         # Player move has ended the game
         board_str = board_to_str(board)
-        return serialize_response(None, board_str, result)
+        win_line = winning_line(board)
+        return serialize_response(None, board_str, result, win_line)
     else:
         # Get the other players move (AI)
         board = get_move(board, otherplayer)
         board_str = board_to_str(board)
         result = score(board)
-        return serialize_response(player_str, board_str, result)
+        win_line = winning_line(board)
+        return serialize_response(player_str, board_str, result, win_line)
 
 
 @app.route("/")
 def get_index():
-    return redirect("/api/new")
+    return send_from_directory('site', 'index.html')
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)
